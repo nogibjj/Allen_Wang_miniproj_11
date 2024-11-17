@@ -41,14 +41,28 @@ def close(handle, headers):
   return perform_query('/dbfs/close', headers=headers, data=_data)
 
 def put_file(src_path, dbfs_path, overwrite, headers):
-  handle = create(dbfs_path, overwrite, headers=headers)['handle']
-  print("Putting file: " + dbfs_path)
-  with open(src_path, 'rb') as local_file:
-    while True:
-      contents = local_file.read(2**20)
-      if len(contents) == 0:
-        break
-      add_block(handle, b64encode(contents).decode(), headers=headers)
+    # Get the file content from the URL
+    print(f"Downloading file from {src_url}")
+    response = requests.get(src_url)
+    
+    if response.status_code != 200:
+        raise Exception(f"Failed to download file from URL: {src_url}")
+    
+    # Get the content of the file
+    file_content = response.content
+    
+    # Create file in Databricks
+    handle = create(dbfs_path, overwrite, headers=headers)['handle']
+    print(f"Putting file: {dbfs_path}")
+    
+    # Add content to Databricks
+    while len(file_content) > 0:
+        # Chunk the file content to upload
+        chunk = file_content[:2**20]  # 1 MB chunks
+        file_content = file_content[2**20:]  # Remaining content
+        add_block(handle, b64encode(chunk).decode(), headers=headers)
+    
+    # Close the file in Databricks
     close(handle, headers=headers)
 
 def extract(url="https://raw.githubusercontent.com/fivethirtyeight/data/master/alcohol-consumption/drinks.csv",
