@@ -42,11 +42,11 @@ def close(handle, headers):
 
 def put_file(src_path, dbfs_path, overwrite, headers):
     # Get the file content from the URL
-    print(f"Downloading file from {src_url}")
-    response = requests.get(src_url)
+    print(f"Downloading file from {src_path}")
+    response = requests.get(src_path)
     
     if response.status_code != 200:
-        raise Exception(f"Failed to download file from URL: {src_url}")
+        raise Exception(f"Failed to download file from URL: {src_path}")
     
     # Get the content of the file
     file_content = response.content
