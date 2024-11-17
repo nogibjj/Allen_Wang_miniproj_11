@@ -13,4 +13,3 @@ databricks-sql-connector
 python-dotenv
 setuptools
 pandas
-sqlalchemy

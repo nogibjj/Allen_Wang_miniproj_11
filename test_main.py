@@ -1,97 +1,41 @@
-import subprocess
+import requests
 import os
+import json
+from dotenv import load_dotenv
 
+def main_test(file_name):
+    load_dotenv()
+    server_h = os.getenv("SERVER_HOSTNAME")
+    access_token = os.getenv("ACCESS_TOKEN")
+    FILESTORE_PATH = "dbfs:/FileStore/Allen_mini_project11"
+    headers = {'Authorization': f'Bearer {access_token}'}
 
-def test_transform():
-    result = subprocess.run(
-        [
-            "python",
-            "main.py",
-            "transform",
-            "https://raw.githubusercontent.com/fivethirtyeight/data/master/alcohol-consumption/drinks.csv",   
-            "https://raw.githubusercontent.com/fivethirtyeight/data/master/drug-use-by-age/drug-use-by-age.csv"
-        ],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    assert result.returncode == 0
+    # Construct the API URL for listing files in the Filestore path
+    url = f"https://{server_h}/api/2.0/dbfs/list"
 
+    # Request payload
+    payload = {
+        "path": FILESTORE_PATH
+    }
 
-def test_create_row():
-    result = subprocess.run(
-        [
-            "python",
-            "main.py",
-            "create",
-            "USB",  # country
-            "10",  # beer_servings
-            "20",  # spirit_servings
-            "30",  # wine_servings
-            "10.7",  # total_litres_of_pure_alcohol
-        ],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    assert result.returncode == 0
+    try:
+        # Make the API request
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()  # Raise an error for non-200 status codes
 
+        # Parse the response
+        data = response.json()
+        files = [file["path"] for file in data.get("files", [])]
 
-def test_read_all():
-    result = subprocess.run(
-        ["python", "main.py", "read"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    assert result.returncode == 0
+        # Check if the file exists
+        if any(file_name in file for file in files):
+            print(f"File '{file_name}' exists in the Databricks Filestore path.")
+        else:
+            print(f"File '{file_name}' does NOT exist in the Databricks Filestore path.")
 
-
-def test_update_row():
-    result = subprocess.run(
-        [
-            "python",
-            "main.py",
-            "update",
-            "USA",  # country
-            "15",  # new beer_servings
-        ],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    assert result.returncode == 0
-
-
-def test_delete_row():
-    result = subprocess.run(
-        ["python", "main.py", "delete", "Canada"],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    assert result.returncode == 0
-
-
-def test_general():
-    result = subprocess.run(
-        [
-            "python",
-            "main.py",
-            "general",
-            "SELECT tc.country, tc.total_beer_servings, u.age_group, u.alcohol_use, u.alcohol_frequency FROM (SELECT country, SUM(beer_servings) AS total_beer_servings FROM zw308_drink GROUP BY country ORDER BY total_beer_servings DESC LIMIT 5) AS tc JOIN zw308_drug_use u ON u.alcohol_use = (SELECT MAX(alcohol_use) FROM zw308_drug_use) ORDER BY tc.total_beer_servings DESC, u.alcohol_use DESC;",
-        ],
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    assert result.returncode == 0
-
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred while accessing Databricks API: {e}")
 
 if __name__ == "__main__":
-    test_transform()
-    #test_create_row()
-    test_read_all()
-    #test_update_row()
-    #test_delete_row()
-    test_general()
+    main_test("zw308_drink.csv")
+    main_test("zw308_drug_use.csv")

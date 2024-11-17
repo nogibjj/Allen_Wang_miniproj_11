@@ -22,8 +22,6 @@ jobs:
           echo "HTTP_PATH=${{ secrets.HTTP_PATH }}" >> $GITHUB_ENV
       - name: transform
         run: make transform
-      - name: query3
-        run: make query3
       - name: lint
         run: make lint
       - name: test

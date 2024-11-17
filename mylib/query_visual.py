@@ -1,20 +1,10 @@
-import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sqlalchemy import create_engine, text
-from dotenv import load_dotenv
-import os
+from pyspark.sql import SparkSession
 
 def visualize_query_results():
     # Load environment variables
-    load_dotenv()
-    server_h = os.getenv("SERVER_HOSTNAME")
-    access_token = os.getenv("ACCESS_TOKEN")
-    http_path = os.getenv("HTTP_PATH")
-
-    # Create database engine
-    connection_string = f"databricks://token:{access_token}@{server_h}?http_path={http_path}"
-    engine = create_engine(connection_string)
+    spark = SparkSession.builder.appName("Allen Query").getOrCreate()
 
     # Query the database
     query = """
@@ -24,13 +14,15 @@ def visualize_query_results():
     ORDER BY total_litres_of_pure_alcohol DESC
     LIMIT 10
     """
-    with engine.connect() as connection:
-        df = pd.read_sql_query(text(query), connection)
+    df = spark.sql(query)
+
+    # Convert PySpark DataFrame to Pandas DataFrame for visualization
+    pandas_df = df.toPandas()
 
     # Plot 1: Bar Plot of Alcohol Consumption by Country
     plt.figure(figsize=(10, 6))
     sns.barplot(
-        data=df,
+        data=pandas_df,
         x="country",
         y="total_litres_of_pure_alcohol",
         palette="viridis"
@@ -43,7 +35,7 @@ def visualize_query_results():
     plt.show()
 
     # Plot 2: Stacked Bar Chart of Alcohol Types
-    df_melted = df.melt(
+    pandas_df_melted = pandas_df.melt(
         id_vars=["country"],
         value_vars=["beer_servings", "spirit_servings", "wine_servings"],
         var_name="Alcohol_Type",
@@ -51,7 +43,7 @@ def visualize_query_results():
     )
     plt.figure(figsize=(12, 7))
     sns.barplot(
-        data=df_melted,
+        data=pandas_df_melted,
         x="country",
         y="Servings",
         hue="Alcohol_Type",
