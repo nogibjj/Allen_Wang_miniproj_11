@@ -19,8 +19,6 @@ jobs:
         run: |
           echo "SERVER_HOSTNAME=${{ secrets.SERVER_HOSTNAME }}" >> $GITHUB_ENV
           echo "ACCESS_TOKEN=${{ secrets.ACCESS_TOKEN }}" >> $GITHUB_ENV
-      - name: transform
-        run: make transform
       - name: lint
         run: make lint
       - name: test
