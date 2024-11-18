@@ -82,4 +82,4 @@ This project demonstrates a complete data pipeline using Databricks, showcasing 
 
 ## Databricks Pipeline
 
-![pipeline](pipeline.png)
+![pipeline](Pipeline.png)
