@@ -1,7 +1,6 @@
 from mylib.extract import extract
 from mylib.transform_load import load,transform_drinks,transform_drugs,save_to_db
 from mylib.query_visual import visualize_query_results
-import os 
 
 if __name__ == "__main__":
     extract()
