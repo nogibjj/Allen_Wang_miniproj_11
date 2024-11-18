@@ -43,7 +43,7 @@ def test_databricks():
     # Perform the path check
     file_exists = check_filestore_path(FILESTORE_PATH, headers)
     
-    assert file_exists == True
+    assert file_exists
     # Assert if the file exists (or could handle failure more gracefully)
     if file_exists:
         print("Test Passed: File exists.")
