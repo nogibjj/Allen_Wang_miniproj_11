@@ -51,25 +51,19 @@ This project demonstrates a complete data pipeline using Databricks, showcasing 
     make install
     ```
 
-3. **Build package**:
-
-    ```bash
-    make setup
-    ```
-
-4. **Format code**:
+3. **Format code**:
 
     ```bash
     make format
     ```
 
-5. **Lint code**:
+4. **Lint code**:
 
     ```bash
     make lint
     ```
 
-6. **Test code**:
+5. **Test code**:
 
     ```bash
     make test
