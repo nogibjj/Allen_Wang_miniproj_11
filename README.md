@@ -1,4 +1,4 @@
-# Allen_Wang_miniproj_7
+# Allen_Wang_miniproj_11
 
 [![CI](https://github.com/nogibjj/Allen_Wang_miniproj_11/actions/workflows/CICD.yml/badge.svg)](https://github.com/nogibjj/Allen_Wang_miniproj_11/actions/workflows/CICD.yml)
 
@@ -41,8 +41,8 @@ This project demonstrates a complete data pipeline using Databricks, showcasing 
 1. **Clone the repository**:
 
     ```bash
-    git clone https://github.com/nogibjj/Allen_Wang_miniproj_10.git
-    cd Allen_Wang_miniproj_7
+    git clone https://github.com/nogibjj/Allen_Wang_miniproj_11.git
+    cd Allen_Wang_miniproj_11
     ```
 
 2. **Install dependencies**:
