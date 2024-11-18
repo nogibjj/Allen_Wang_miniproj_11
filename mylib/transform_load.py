@@ -40,7 +40,7 @@ def transform_drugs(drugs_df):
 
 def save_to_db(drinks_df, drugs_df):
     # Save transformed data to Delta tables
-    drinks_table_path = "dbfs:/FileStore/Allen_mini_project11/zw_308_transformed_drink2"
+    drinks_table_path = "dbfs:/FileStore/Allen_mini_project11/zw_308_transformed_drink"
     drugs_table_path = "dbfs:/FileStore/Allen_mini_project11/zw_308_transformed_drug_use"
 
     # Write drinks data
