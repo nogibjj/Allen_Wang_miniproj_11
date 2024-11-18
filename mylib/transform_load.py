@@ -1,8 +1,8 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, expr
 
-def load(drinks_path="dbfs:/FileStore/mini_project11/drinks.csv", 
-         drugs_path="dbfs:/FileStore/mini_project11/drugs.csv"):
+def load(drinks_path="dbfs:/FileStore/Allen_mini_project11/zw_308_drink.csv", 
+         drugs_path="dbfs:/FileStore/Allen_mini_project11/zw_308_drug_use.csv"):
     # Initialize Spark session
     spark = SparkSession.builder.appName("Allen Mini Project 11").getOrCreate()
 
@@ -16,13 +16,15 @@ def load(drinks_path="dbfs:/FileStore/mini_project11/drinks.csv",
 def transform_drinks(drinks_df):
     # Transform drinks data
     drinks_df = drinks_df.withColumnRenamed("country", "country") \
-                         .withColumn("total_litres_of_pure_alcohol", 
-                                     col("total_litres_of_pure_alcohol").fillna(0)) \
-                         .withColumn("alcohol_diversity", 
-                                     expr("((beer_servings / (beer_servings + spirit_servings + wine_servings)) ** 2) + "
-                                          "((spirit_servings / (beer_servings + spirit_servings + wine_servings)) ** 2) + "
-                                          "((wine_servings / (beer_servings + spirit_servings + wine_servings)) ** 2)"))
-
+                         .fillna({"total_litres_of_pure_alcohol": 0}) \
+                         .withColumn(
+                             "alcohol_diversity", 
+                             expr("""
+                             POWER(beer_servings / (beer_servings + spirit_servings + wine_servings), 2) + 
+                             POWER(spirit_servings / (beer_servings + spirit_servings + wine_servings), 2) + 
+                             POWER(wine_servings / (beer_servings + spirit_servings + wine_servings), 2)
+                             """)
+                         )
     return drinks_df
 
 
@@ -38,14 +40,13 @@ def transform_drugs(drugs_df):
 
 def save_to_db(drinks_df, drugs_df):
     # Save transformed data to Delta tables
-    drinks_table_path = "dbfs:/FileStore/mini_project11/transformed_drinks"
-    drugs_table_path = "dbfs:/FileStore/mini_project11/transformed_drugs"
+    drinks_table_path = "dbfs:/FileStore/Allen_mini_project11/zw_308_transformed_drink2"
+    drugs_table_path = "dbfs:/FileStore/Allen_mini_project11/zw_308_transformed_drug_use"
 
     # Write drinks data
-    drinks_df.write.format("delta").mode("overwrite").saveAsTable(drinks_table_path)
-
+    drinks_df.write.format("delta").mode("overwrite").save(drinks_table_path)
     # Write drugs data
-    drugs_df.write.format("delta").mode("overwrite").saveAsTable(drugs_table_path)
+    drugs_df.write.format("delta").mode("overwrite").save(drugs_table_path)
 
 
 def main():

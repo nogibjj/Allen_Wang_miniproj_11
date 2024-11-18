@@ -16,3 +16,4 @@ pandas
 pyspark
 matplotlib
 seaborn
+ruff

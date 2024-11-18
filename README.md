@@ -1,70 +1,39 @@
 # Allen_Wang_miniproj_7
 
-[![CI](https://github.com/nogibjj/Allen_Wang_miniproj_7/actions/workflows/CICD.yml/badge.svg)](https://github.com/nogibjj/Allen_Wang_miniproj_7/actions/workflows/CICD.yml)
+[![CI](https://github.com/nogibjj/Allen_Wang_miniproj_11/actions/workflows/CICD.yml/badge.svg)](https://github.com/nogibjj/Allen_Wang_miniproj_11/actions/workflows/CICD.yml)
 
 ## Overview
 
-This project demonstrates how to connect to an external MySQL database, perform complex SQL queries involving joins, aggregation, and sorting, and package the project for execution. Implemented in Python, the project utilizes a Databricks database connection and CI/CD setup for testing and validation. This analysis aims to uncover trends in alcohol consumption and drug use across different age groups and countries. You can find the package user guide [here](https://github.com/nogibjj/Allen_Wang_miniproj_7/blob/main/user_guide.md)
+This project demonstrates a complete data pipeline using Databricks, showcasing how to extract data from an external url, transform it with SQL and Python, and load it into a structured format for analysis. The project includes a CI/CD setup for ensuring code quality, reproducibility, and testing. The pipeline identifies trends in alcohol consumption and drug use across different countries and age groups, with a focus on actionable insights from complex SQL queries.
+
+## Pipeline Overview
+
+### Data Pipeline Components:
+- **Data Source**: [`drinks`](https://raw.githubusercontent.com/fivethirtyeight/data/master/alcohol-consumption/drinks.csv) and [`drug use`](https://raw.githubusercontent.com/fivethirtyeight/data/master/drug-use-by-age/drug-use-by-age.csv) tables.
+- **Data Sink**: Transformed data is stored in Delta tables on Databricks.
+- **Transformation**: Fill in na and new features created
+- **Visualization**: Analysis results are visualized using Python's Matplotlib and Seaborn.
+
+### Pipeline Steps:
+1. Extract data from url.
+2. Load data into a Databricks Delta table.
+3. Apply ransformations for data aggregation and filtering.
+4. Visualize the results and save plots.
+
+---
 
 ## Project Structure
 
-- **.devcontainer/**: Configuration for the development container.
+- **`mylib/`**: Python scripts for SQL queries, data extraction, and transformations.
+- **`.devcontainer/`**: Configuration for the development container.
 - **Makefile**: Provides commands for setup, formatting, linting, testing, and running SQL queries:
   - `make install`: Installs dependencies.
   - `make format`: Formats Python files.
   - `make lint`: Lints Python files.
-  - `make test`: Runs tests.
+  - `make test`: Runs unit tests.
   - `make all`: Runs all tasks (install, format, lint, and test).
-  - `make transform`: Transforms data and stores it in the `drink.db` database.
-  - `make query3`: Run the complex SQL query
-  - `make setup`: Buil pacaged project
-
-- **.github/workflows/ci.yml**: CI/CD pipeline configuration.
-- **main.py**: Python script to handle data transformation, and database queries.
-- **README.md**: Setup, usage instructions, and project description.
-
-## Complex SQL Query
-
-```sql
-SELECT 
-    tc.country,
-    tc.total_beer_servings,
-    u.age_group,
-    u.alcohol_use,
-    u.alcohol_frequency
-FROM 
-    (SELECT country, SUM(beer_servings) AS total_beer_servings 
-     FROM zw308_drink 
-     GROUP BY country 
-     ORDER BY total_beer_servings DESC 
-     LIMIT 5) AS tc
-JOIN 
-    zw308_drug_use u 
-ON 
-    u.alcohol_use = (SELECT MAX(alcohol_use) FROM zw308_drug_use) 
-ORDER BY 
-    tc.total_beer_servings DESC, u.alcohol_use DESC;
-```
-
-### Explanation
-This query is designed to find the top 5 countries with the highest total beer servings and the corresponding age group with the maximum alcohol use.
-
-- First, the subquery calculates the total beer servings per country by summing `beer_servings` from the `zw308_drink` table and selecting only the top 5 countries with the highest values, sorted in descending order.
-- Next, this subquery result (`tc`) is joined with the `zw308_drug_use` table, where the age group is selected based on the highest recorded alcohol use (`MAX(alcohol_use)`).
-- The final output shows the country, total beer servings, age group with the maximum alcohol use, and the median alcohol usage frequency for each of these countries. The results are sorted by the total beer servings in descending order, followed by the alcohol use in descending order.
-
-### Expected Result
-
-| Country         | Total Beer Servings | Age Group | Alcohol Use (%) | Alcohol Frequency |
-|-----------------|--------------------|-----------|-----------------|-------------------|
-| Namibia         | 376                | 22-23     | 84.2            | 52.0              |
-| Czech Republic  | 361                | 22-23     | 84.2            | 52.0              |
-| Gabon           | 347                | 22-23     | 84.2            | 52.0              |
-| Germany         | 346                | 22-23     | 84.2            | 52.0              |
-| Lithuania       | 343                | 22-23     | 84.2            | 52.0              |
-
-This result shows the top 5 countries with the highest beer servings and the age group `22-23`, which has the maximum alcohol use across all countries at `84.2%`, with a median usage frequency of `52` times in the last 12 months.
-
+- **`.github/workflows/CICD.yml`**: CI/CD pipeline configuration using GitHub Actions.
+- **`README.md`**: Setup instructions, usage guidelines, and project description.
 
 
 ## Setup
@@ -72,7 +41,7 @@ This result shows the top 5 countries with the highest beer servings and the age
 1. **Clone the repository**:
 
     ```bash
-    git clone https://github.com/nogibjj/Allen_Wang_miniproj_7.git
+    git clone https://github.com/nogibjj/Allen_Wang_miniproj_10.git
     cd Allen_Wang_miniproj_7
     ```
 
@@ -105,3 +74,12 @@ This result shows the top 5 countries with the highest beer servings and the age
     ```bash
     make test
     ```
+
+## Visualization from Query
+
+![viz1](alcohol_servings_by_type.png)
+![viz2](alcohol_servings_by_type.png)
+
+## Databricks Pipeline
+
+![pipeline](pipeline.png)

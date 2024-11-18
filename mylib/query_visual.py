@@ -4,16 +4,17 @@ from pyspark.sql import SparkSession
 
 def visualize_query_results():
     # Load environment variables
-    spark = SparkSession.builder.appName("Allen Query").getOrCreate()
+    spark = SparkSession.builder.appName("Allen Query").config("spark.sql.catalogImplementation", "hive").enableHiveSupport().getOrCreate()
+
+    delta_path = "dbfs:/FileStore/Allen_mini_project11/zw_308_transformed_drink"
 
     # Query the database
-    query = """
-    SELECT country, beer_servings, spirit_servings, wine_servings, total_litres_of_pure_alcohol
-    FROM zw308_drink
+    query = (f"""SELECT country, beer_servings, spirit_servings, wine_servings, total_litres_of_pure_alcohol
+    FROM delta.`{delta_path}`
     WHERE total_litres_of_pure_alcohol > 5
     ORDER BY total_litres_of_pure_alcohol DESC
-    LIMIT 10
-    """
+    LIMIT 10"""
+    )
     df = spark.sql(query)
 
     # Convert PySpark DataFrame to Pandas DataFrame for visualization
@@ -32,7 +33,8 @@ def visualize_query_results():
     plt.xlabel("Country")
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
-    plt.show()
+    plt.savefig("top_10_countries_alcohol_consumption.png")  # Save the image
+    plt.close()  # Close the plot to free memory
 
     # Plot 2: Stacked Bar Chart of Alcohol Types
     pandas_df_melted = pandas_df.melt(
@@ -54,7 +56,8 @@ def visualize_query_results():
     plt.xlabel("Country")
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
-    plt.show()
+    plt.savefig("alcohol_servings_by_type.png")  # Save the image
+    plt.close()  # Close the plot to free memory
 
 if __name__ == "__main__":
     visualize_query_results()
